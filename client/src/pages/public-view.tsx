@@ -30,10 +30,67 @@ const MAP_OPTIONS = {
   mapTypeControl: false,
 };
 
+// Dark theme for the map
+const MAP_STYLES = [
+  { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
+  { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
+  { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
+  {
+    featureType: "administrative.locality",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#d59563" }],
+  },
+  {
+    featureType: "poi",
+    elementType: "labels",
+    stylers: [{ visibility: "off" }],
+  },
+  {
+    featureType: "road",
+    elementType: "geometry",
+    stylers: [{ color: "#38414e" }],
+  },
+  {
+    featureType: "road",
+    elementType: "geometry.stroke",
+    stylers: [{ color: "#212a37" }],
+  },
+  {
+    featureType: "road",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#9ca5b3" }],
+  },
+  {
+    featureType: "road.highway",
+    elementType: "geometry",
+    stylers: [{ color: "#746855" }],
+  },
+  {
+    featureType: "road.highway",
+    elementType: "geometry.stroke",
+    stylers: [{ color: "#1f2835" }],
+  },
+  {
+    featureType: "water",
+    elementType: "geometry",
+    stylers: [{ color: "#17263c" }],
+  },
+  {
+    featureType: "water",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#515c6d" }],
+  },
+  {
+    featureType: "water",
+    elementType: "labels.text.stroke",
+    stylers: [{ color: "#17263c" }],
+  },
+];
+
 type ViewMode = "list" | "map";
 
 export default function PublicView() {
-  const [viewMode, setViewMode] = useState<ViewMode>("list"); // Changed default to "list"
+  const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [selectedBar, setSelectedBar] = useState<Bar | null>(null);
 
   const { isLoaded, loadError } = useLoadScript({
@@ -48,10 +105,27 @@ export default function PublicView() {
 
   const mapCenter = useMemo(() => MADISON_CENTER, []);
 
-  const getMarkerColor = useCallback((occupancyPercent: number) => {
-    if (occupancyPercent >= 100) return "#ef4444"; // red
-    if (occupancyPercent >= 80) return "#f97316"; // orange
-    return "#22c55e"; // green
+  const getMarkerStyle = useCallback((occupancyPercent: number) => {
+    // Base color for low occupancy
+    const baseColor = { r: 255, g: 0, b: 0 };
+
+    // Calculate size based on occupancy
+    const baseScale = 14;
+    const maxScaleIncrease = 8;
+    const scale = baseScale + (maxScaleIncrease * (occupancyPercent / 100));
+
+    // Calculate opacity based on occupancy
+    const minOpacity = 0.4;
+    const opacity = minOpacity + ((1 - minOpacity) * (occupancyPercent / 100));
+
+    return {
+      path: google.maps.SymbolPath.CIRCLE,
+      fillColor: `rgb(${baseColor.r}, ${baseColor.g}, ${baseColor.b})`,
+      fillOpacity: opacity,
+      strokeWeight: 2,
+      strokeColor: "#ffffff",
+      scale: scale,
+    };
   }, []);
 
   if (loadError) {
@@ -126,13 +200,7 @@ export default function PublicView() {
                   mapContainerClassName="w-full h-full"
                   options={{
                     ...MAP_OPTIONS,
-                    styles: [
-                      {
-                        featureType: "poi",
-                        elementType: "labels",
-                        stylers: [{ visibility: "off" }],
-                      },
-                    ],
+                    styles: MAP_STYLES,
                   }}
                   onClick={() => setSelectedBar(null)}
                 >
@@ -149,12 +217,8 @@ export default function PublicView() {
                         }}
                         onClick={() => setSelectedBar(bar)}
                         icon={{
-                          path: google.maps.SymbolPath.CIRCLE,
-                          fillColor: getMarkerColor(occupancyPercent),
-                          fillOpacity: isSelected ? 1 : 0.8,
-                          strokeWeight: isSelected ? 2 : 1,
-                          strokeColor: "#ffffff",
-                          scale: isSelected ? 16 : 14,
+                          ...getMarkerStyle(occupancyPercent),
+                          scale: isSelected ? getMarkerStyle(occupancyPercent).scale + 4 : getMarkerStyle(occupancyPercent).scale,
                         }}
                         label={{
                           text: `${Math.round(occupancyPercent)}%`,
