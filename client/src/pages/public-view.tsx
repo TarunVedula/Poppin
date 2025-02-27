@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Loader2, Beer, MapPin } from "lucide-react";
+import { Loader2, Beer, MapPin, AlertCircle } from "lucide-react";
 import { GoogleMap, useLoadScript, MarkerF } from "@react-google-maps/api";
 import { useState, useMemo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
@@ -33,8 +33,10 @@ export default function PublicView() {
   const [viewMode, setViewMode] = useState<ViewMode>("map");
   const [selectedBar, setSelectedBar] = useState<Bar | null>(null);
 
-  const { isLoaded } = useLoadScript({
+  const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string,
+    // Add additional required libraries
+    libraries: ["places"],
   });
 
   const { data: bars, isLoading } = useQuery<Bar[]>({
@@ -49,6 +51,24 @@ export default function PublicView() {
     if (occupancyPercent >= 80) return "#f97316"; // orange
     return "#22c55e"; // green
   }, []);
+
+  if (loadError) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Card className="w-full max-w-md mx-4">
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <AlertCircle className="h-8 w-8 text-destructive mx-auto mb-4" />
+              <h2 className="text-lg font-semibold mb-2">Map Loading Error</h2>
+              <p className="text-sm text-muted-foreground">
+                There was an error loading the map. Please try refreshing the page.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
