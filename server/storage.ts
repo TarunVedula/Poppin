@@ -49,6 +49,30 @@ const MADISON_BARS: InsertBar[] = [
   }
 ];
 
+// Sample bar owner accounts
+const BAR_OWNERS = [
+  {
+    username: "brats_manager",
+    password: "bratspass123",
+    barId: 1 // Will own State Street Brats
+  },
+  {
+    username: "whiskey_manager",
+    password: "whiskeypass123",
+    barId: 2 // Will own Whiskey Jacks
+  },
+  {
+    username: "kk_manager",
+    password: "kkpass123",
+    barId: 3 // Will own The KK
+  },
+  {
+    username: "chasers_manager",
+    password: "chaserspass123",
+    barId: 4 // Will own Chasers
+  }
+];
+
 export class MemStorage implements IStorage {
   private users: Map<number, User>;
   private bars: Map<number, Bar>;
@@ -66,6 +90,19 @@ export class MemStorage implements IStorage {
     MADISON_BARS.forEach(bar => {
       const id = this.currentBarId++;
       this.bars.set(id, { ...bar, id });
+    });
+
+    // Seed bar owners
+    BAR_OWNERS.forEach(owner => {
+      const id = this.currentUserId++;
+      const user: User = {
+        id,
+        username: owner.username,
+        password: owner.password,
+        isBouncer: true,
+        barId: owner.barId
+      };
+      this.users.set(id, user);
     });
 
     this.sessionStore = new MemoryStore({
@@ -101,7 +138,7 @@ export class MemStorage implements IStorage {
   async updateBarCount(id: number, count: number): Promise<Bar | undefined> {
     const bar = await this.getBar(id);
     if (!bar) return undefined;
-    
+
     const updatedBar = { ...bar, currentCount: count };
     this.bars.set(id, updatedBar);
     return updatedBar;

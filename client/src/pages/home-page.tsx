@@ -16,8 +16,8 @@ import { useState } from "react";
 import { Link } from "wouter";
 
 export default function HomePage() {
-  const { logoutMutation } = useAuth();
-  const [counts, setCounts] = useState<Record<number, string>>({});
+  const { user, logoutMutation } = useAuth();
+  const [count, setCount] = useState<string>("");
 
   const { data: bars, isLoading } = useQuery<Bar[]>({
     queryKey: ["/api/bars"],
@@ -32,6 +32,7 @@ export default function HomePage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/bars"] });
+      setCount("");
     },
   });
 
@@ -43,11 +44,13 @@ export default function HomePage() {
     );
   }
 
+  const userBar = bars?.find(bar => bar.id === user?.barId);
+
   return (
     <div className="min-h-screen bg-background p-8">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-3xl mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold">Bar Dashboard</h1>
+          <h1 className="text-4xl font-bold">Bar Manager Dashboard</h1>
           <div className="flex gap-4">
             <Link href="/public">
               <Button variant="outline">
@@ -66,63 +69,66 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {bars?.map((bar) => (
-            <Card key={bar.id}>
-              <CardHeader>
-                <CardTitle>{bar.name}</CardTitle>
-                <CardDescription>{bar.address}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <p className="text-sm font-medium mb-2">Current Count</p>
-                    <div className="flex gap-2">
-                      <Input
-                        type="number"
-                        value={counts[bar.id] ?? bar.currentCount}
-                        onChange={(e) =>
-                          setCounts({
-                            ...counts,
-                            [bar.id]: e.target.value,
-                          })
-                        }
-                      />
-                      <Button
-                        onClick={() =>
-                          updateCountMutation.mutate({
-                            barId: bar.id,
-                            count: parseInt(counts[bar.id] ?? "0"),
-                          })
-                        }
-                        disabled={updateCountMutation.isPending}
-                      >
-                        Update
-                      </Button>
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">
-                      Capacity: {bar.capacity}
-                    </span>
-                    <span
-                      className={`text-sm font-medium ${
-                        bar.currentCount >= bar.capacity
-                          ? "text-destructive"
-                          : bar.currentCount >= bar.capacity * 0.8
-                          ? "text-orange-500"
-                          : "text-green-500"
-                      }`}
+        {userBar ? (
+          <Card>
+            <CardHeader>
+              <CardTitle>{userBar.name}</CardTitle>
+              <CardDescription>{userBar.address}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm font-medium mb-2">Current Count</p>
+                  <div className="flex gap-2">
+                    <Input
+                      type="number"
+                      value={count || userBar.currentCount}
+                      onChange={(e) => setCount(e.target.value)}
+                      min={0}
+                      max={userBar.capacity}
+                    />
+                    <Button
+                      onClick={() =>
+                        updateCountMutation.mutate({
+                          barId: userBar.id,
+                          count: parseInt(count || "0"),
+                        })
+                      }
+                      disabled={updateCountMutation.isPending}
                     >
-                      {Math.round((bar.currentCount / bar.capacity) * 100)}%
-                      Full
-                    </span>
+                      Update
+                    </Button>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">
+                    Capacity: {userBar.capacity}
+                  </span>
+                  <span
+                    className={`text-sm font-medium ${
+                      userBar.currentCount >= userBar.capacity
+                        ? "text-destructive"
+                        : userBar.currentCount >= userBar.capacity * 0.8
+                        ? "text-orange-500"
+                        : "text-green-500"
+                    }`}
+                  >
+                    {Math.round((userBar.currentCount / userBar.capacity) * 100)}%
+                    Full
+                  </span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card>
+            <CardContent className="py-8">
+              <p className="text-center text-muted-foreground">
+                You are not assigned to manage any bars. Please contact an administrator.
+              </p>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );

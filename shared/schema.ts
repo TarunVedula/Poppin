@@ -7,6 +7,7 @@ export const users = pgTable("users", {
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
   isBouncer: boolean("is_bouncer").notNull().default(false),
+  barId: integer("bar_id"), // The bar this user owns/manages, if any
 });
 
 export const bars = pgTable("bars", {
