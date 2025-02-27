@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, numeric } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -15,6 +15,8 @@ export const bars = pgTable("bars", {
   currentCount: integer("current_count").notNull().default(0),
   capacity: integer("capacity").notNull(),
   address: text("address").notNull(),
+  latitude: numeric("latitude").notNull(),
+  longitude: numeric("longitude").notNull(),
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
