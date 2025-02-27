@@ -20,32 +20,32 @@ const MADISON_BARS: InsertBar[] = [
     currentCount: 0,
     capacity: 200,
     address: "603 State St, Madison, WI 53703",
-    latitude: 43.0751,
-    longitude: -89.3953
+    latitude: "43.0751",
+    longitude: "-89.3953"
   },
   {
     name: "Whiskey Jacks",
     currentCount: 0,
     capacity: 150,
     address: "552 State St, Madison, WI 53703",
-    latitude: 43.0748,
-    longitude: -89.3947
+    latitude: "43.0748",
+    longitude: "-89.3947"
   },
   {
     name: "The KK",
     currentCount: 0,
     capacity: 180,
     address: "124 W Gorham St, Madison, WI 53703",
-    latitude: 43.0753,
-    longitude: -89.3882
+    latitude: "43.0753",
+    longitude: "-89.3882"
   },
   {
     name: "Chasers",
     currentCount: 0,
     capacity: 120,
     address: "319 W Gorham St, Madison, WI 53703",
-    latitude: 43.0757,
-    longitude: -89.3908
+    latitude: "43.0757",
+    longitude: "-89.3908"
   }
 ];
 

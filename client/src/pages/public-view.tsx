@@ -106,8 +106,8 @@ export default function PublicView() {
                       <MarkerF
                         key={bar.id}
                         position={{
-                          lat: Number(bar.latitude),
-                          lng: Number(bar.longitude),
+                          lat: parseFloat(bar.latitude),
+                          lng: parseFloat(bar.longitude),
                         }}
                         onClick={() => setSelectedBar(bar)}
                         icon={{
