@@ -1,8 +1,18 @@
 import { Bar, InsertBar, User, InsertUser } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
+import { scrypt, randomBytes } from "crypto";
+import { promisify } from "util";
+
+const scryptAsync = promisify(scrypt);
 
 const MemoryStore = createMemoryStore(session);
+
+async function hashPassword(password: string) {
+  const salt = randomBytes(16).toString("hex");
+  const buf = (await scryptAsync(password, salt, 64)) as Buffer;
+  return `${buf.toString("hex")}.${salt}`;
+}
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -92,18 +102,21 @@ export class MemStorage implements IStorage {
       this.bars.set(id, { ...bar, id });
     });
 
-    // Seed bar owners
-    BAR_OWNERS.forEach(owner => {
-      const id = this.currentUserId++;
-      const user: User = {
-        id,
-        username: owner.username,
-        password: owner.password,
-        isBouncer: true,
-        barId: owner.barId
-      };
-      this.users.set(id, user);
-    });
+    // Seed bar owners with hashed passwords
+    Promise.all(
+      BAR_OWNERS.map(async (owner) => {
+        const id = this.currentUserId++;
+        const hashedPassword = await hashPassword(owner.password);
+        const user: User = {
+          id,
+          username: owner.username,
+          password: hashedPassword,
+          isBouncer: true,
+          barId: owner.barId
+        };
+        this.users.set(id, user);
+      })
+    ).then(() => {});
 
     this.sessionStore = new MemoryStore({
       checkPeriod: 86400000,
@@ -122,7 +135,14 @@ export class MemStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.currentUserId++;
-    const user = { ...insertUser, id, isBouncer: true };
+    const hashedPassword = await hashPassword(insertUser.password);
+    const user: User = { 
+      ...insertUser, 
+      id, 
+      password: hashedPassword,
+      isBouncer: true,
+      barId: insertUser.barId //Corrected to use insertUser.barId
+    };
     this.users.set(id, user);
     return user;
   }
