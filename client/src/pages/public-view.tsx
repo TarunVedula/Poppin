@@ -10,8 +10,11 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { Loader2, Beer, MapPin, AlertCircle } from "lucide-react";
 import { GoogleMap, useLoadScript, MarkerF } from "@react-google-maps/api";
-import { useState, useMemo, useCallback } from "react";
+import { useRef, useState, useMemo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
+
+// Move libraries array outside component to prevent reloads
+const LIBRARIES = ["places"] as const;
 
 const MADISON_CENTER = {
   lat: 43.0731,
@@ -30,13 +33,12 @@ const MAP_OPTIONS = {
 type ViewMode = "list" | "map";
 
 export default function PublicView() {
-  const [viewMode, setViewMode] = useState<ViewMode>("map");
+  const [viewMode, setViewMode] = useState<ViewMode>("list"); // Changed default to "list"
   const [selectedBar, setSelectedBar] = useState<Bar | null>(null);
 
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string,
-    // Add additional required libraries
-    libraries: ["places"],
+    libraries: LIBRARIES,
   });
 
   const { data: bars, isLoading } = useQuery<Bar[]>({
@@ -53,6 +55,9 @@ export default function PublicView() {
   }, []);
 
   if (loadError) {
+    const errorMessage = loadError.message.includes("BillingNotEnabledMapError")
+      ? "Google Maps API key requires billing to be enabled."
+      : "There was an error loading the map. Please try refreshing the page.";
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Card className="w-full max-w-md mx-4">
@@ -61,7 +66,7 @@ export default function PublicView() {
               <AlertCircle className="h-8 w-8 text-destructive mx-auto mb-4" />
               <h2 className="text-lg font-semibold mb-2">Map Loading Error</h2>
               <p className="text-sm text-muted-foreground">
-                There was an error loading the map. Please try refreshing the page.
+                {errorMessage}
               </p>
             </div>
           </CardContent>
@@ -187,7 +192,7 @@ export default function PublicView() {
             )}
           </div>
         ) : (
-          <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
             {bars?.map((bar) => {
               const occupancyPercent = (bar.currentCount / bar.capacity) * 100;
               const status =
@@ -205,15 +210,15 @@ export default function PublicView() {
 
               return (
                 <Card key={bar.id} className="h-full">
-                  <CardHeader className="pb-2 sm:pb-4">
-                    <CardTitle className="text-lg sm:text-xl">{bar.name}</CardTitle>
-                    <CardDescription className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
-                      <MapPin className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg">{bar.name}</CardTitle>
+                    <CardDescription className="flex items-center gap-1 text-xs">
+                      <MapPin className="h-3 w-3 flex-shrink-0" />
                       {bar.address}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-3 sm:space-y-4">
+                    <div className="space-y-3">
                       <Progress
                         value={Math.min(occupancyPercent, 100)}
                         className="h-2"
@@ -222,7 +227,7 @@ export default function PublicView() {
                         <span className={`text-sm font-medium ${statusColor}`}>
                           {status}
                         </span>
-                        <span className="text-xs sm:text-sm text-muted-foreground">
+                        <span className="text-xs text-muted-foreground">
                           {bar.currentCount} / {bar.capacity} people
                         </span>
                       </div>
