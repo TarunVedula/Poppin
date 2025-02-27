@@ -60,19 +60,19 @@ export default function PublicView() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-6xl mx-auto p-4 sm:p-8">
-        <div className="text-center mb-6 sm:mb-8">
-          <Beer className="h-12 w-12 sm:h-16 sm:w-16 mx-auto mb-3 sm:mb-4 text-primary" />
-          <h1 className="text-2xl sm:text-4xl font-bold mb-2">Madison Bar Scene</h1>
-          <p className="text-lg sm:text-xl text-muted-foreground mb-4 sm:mb-6">
+      <div className="max-w-6xl mx-auto p-2 sm:p-4">
+        <div className="text-center mb-4">
+          <Beer className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-2 text-primary" />
+          <h1 className="text-xl sm:text-2xl font-bold mb-1">Madison Bar Scene</h1>
+          <p className="text-sm sm:text-base text-muted-foreground mb-3">
             Real-time occupancy for your favorite spots
           </p>
-          <div className="flex justify-center gap-2 sm:gap-4">
+          <div className="flex justify-center gap-2">
             <Button
               size="sm"
               variant={viewMode === "list" ? "default" : "outline"}
               onClick={() => setViewMode("list")}
-              className="px-3 py-1 sm:px-4 sm:py-2"
+              className="px-3 py-1"
             >
               List View
             </Button>
@@ -80,7 +80,7 @@ export default function PublicView() {
               size="sm"
               variant={viewMode === "map" ? "default" : "outline"}
               onClick={() => setViewMode("map")}
-              className="px-3 py-1 sm:px-4 sm:py-2"
+              className="px-3 py-1"
             >
               Map View
             </Button>
@@ -88,7 +88,7 @@ export default function PublicView() {
         </div>
 
         {viewMode === "map" ? (
-          <div className="h-[400px] sm:h-[600px] w-full rounded-lg overflow-hidden border relative">
+          <div className="h-[calc(100vh-160px)] w-full rounded-lg overflow-hidden border relative">
             {!isLoaded ? (
               <div className="h-full flex items-center justify-center">
                 <Loader2 className="h-8 w-8 animate-spin text-border" />
@@ -99,7 +99,16 @@ export default function PublicView() {
                   zoom={15}
                   center={mapCenter}
                   mapContainerClassName="w-full h-full"
-                  options={MAP_OPTIONS}
+                  options={{
+                    ...MAP_OPTIONS,
+                    styles: [
+                      {
+                        featureType: "poi",
+                        elementType: "labels",
+                        stylers: [{ visibility: "off" }],
+                      },
+                    ],
+                  }}
                   onClick={() => setSelectedBar(null)}
                 >
                   {bars?.map((bar) => {
@@ -133,15 +142,15 @@ export default function PublicView() {
                   })}
                 </GoogleMap>
                 {selectedBar && (
-                  <div className="absolute bottom-4 left-4 right-4 bg-card p-3 sm:p-4 rounded-lg shadow-lg mx-2 sm:mx-0">
-                    <h3 className="font-bold text-base sm:text-lg mb-1">{selectedBar.name}</h3>
-                    <p className="text-xs sm:text-sm text-muted-foreground mb-2">{selectedBar.address}</p>
+                  <div className="absolute bottom-4 left-4 right-4 bg-card p-3 rounded-lg shadow-lg mx-2">
+                    <h3 className="font-bold text-base mb-1">{selectedBar.name}</h3>
+                    <p className="text-xs text-muted-foreground mb-2">{selectedBar.address}</p>
                     <div className="flex justify-between items-center">
-                      <span className="text-xs sm:text-sm">
+                      <span className="text-xs">
                         {selectedBar.currentCount} / {selectedBar.capacity} people
                       </span>
                       <span
-                        className={`text-xs sm:text-sm font-medium ${
+                        className={`text-xs font-medium ${
                           selectedBar.currentCount >= selectedBar.capacity
                             ? "text-destructive"
                             : selectedBar.currentCount >= selectedBar.capacity * 0.8
