@@ -20,8 +20,8 @@ const MADISON_BARS: InsertBar[] = [
     currentCount: 0,
     capacity: 200,
     address: "603 State St, Madison, WI 53703",
-    latitude: "43.0751",
-    longitude: "-89.3953"
+    latitude: "43.074673",
+    longitude: "-89.395989"
   },
   {
     name: "Whiskey Jacks",
@@ -36,16 +36,16 @@ const MADISON_BARS: InsertBar[] = [
     currentCount: 0,
     capacity: 180,
     address: "124 W Gorham St, Madison, WI 53703",
-    latitude: "43.0753",
-    longitude: "-89.3882"
+    latitude: "43.075631",
+    longitude: "-89.397142"
   },
   {
     name: "Chasers",
     currentCount: 0,
     capacity: 120,
     address: "319 W Gorham St, Madison, WI 53703",
-    latitude: "43.0757",
-    longitude: "-89.3908"
+    latitude: "43.074090",
+    longitude: "-89.393226"
   }
 ];
 
