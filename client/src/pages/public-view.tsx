@@ -60,23 +60,27 @@ export default function PublicView() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-6xl mx-auto p-8">
-        <div className="text-center mb-8">
-          <Beer className="h-16 w-16 mx-auto mb-4 text-primary" />
-          <h1 className="text-4xl font-bold mb-2">Madison Bar Scene</h1>
-          <p className="text-xl text-muted-foreground mb-6">
+      <div className="max-w-6xl mx-auto p-4 sm:p-8">
+        <div className="text-center mb-6 sm:mb-8">
+          <Beer className="h-12 w-12 sm:h-16 sm:w-16 mx-auto mb-3 sm:mb-4 text-primary" />
+          <h1 className="text-2xl sm:text-4xl font-bold mb-2">Madison Bar Scene</h1>
+          <p className="text-lg sm:text-xl text-muted-foreground mb-4 sm:mb-6">
             Real-time occupancy for your favorite spots
           </p>
-          <div className="flex justify-center gap-4">
+          <div className="flex justify-center gap-2 sm:gap-4">
             <Button
+              size="sm"
               variant={viewMode === "list" ? "default" : "outline"}
               onClick={() => setViewMode("list")}
+              className="px-3 py-1 sm:px-4 sm:py-2"
             >
               List View
             </Button>
             <Button
+              size="sm"
               variant={viewMode === "map" ? "default" : "outline"}
               onClick={() => setViewMode("map")}
+              className="px-3 py-1 sm:px-4 sm:py-2"
             >
               Map View
             </Button>
@@ -84,7 +88,7 @@ export default function PublicView() {
         </div>
 
         {viewMode === "map" ? (
-          <div className="h-[600px] w-full rounded-lg overflow-hidden border relative">
+          <div className="h-[400px] sm:h-[600px] w-full rounded-lg overflow-hidden border relative">
             {!isLoaded ? (
               <div className="h-full flex items-center justify-center">
                 <Loader2 className="h-8 w-8 animate-spin text-border" />
@@ -129,15 +133,15 @@ export default function PublicView() {
                   })}
                 </GoogleMap>
                 {selectedBar && (
-                  <div className="absolute bottom-4 left-4 right-4 bg-card p-4 rounded-lg shadow-lg">
-                    <h3 className="font-bold text-lg mb-1">{selectedBar.name}</h3>
-                    <p className="text-sm text-muted-foreground mb-2">{selectedBar.address}</p>
+                  <div className="absolute bottom-4 left-4 right-4 bg-card p-3 sm:p-4 rounded-lg shadow-lg mx-2 sm:mx-0">
+                    <h3 className="font-bold text-base sm:text-lg mb-1">{selectedBar.name}</h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground mb-2">{selectedBar.address}</p>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm">
+                      <span className="text-xs sm:text-sm">
                         {selectedBar.currentCount} / {selectedBar.capacity} people
                       </span>
                       <span
-                        className={`text-sm font-medium ${
+                        className={`text-xs sm:text-sm font-medium ${
                           selectedBar.currentCount >= selectedBar.capacity
                             ? "text-destructive"
                             : selectedBar.currentCount >= selectedBar.capacity * 0.8
@@ -154,7 +158,7 @@ export default function PublicView() {
             )}
           </div>
         ) : (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
             {bars?.map((bar) => {
               const occupancyPercent = (bar.currentCount / bar.capacity) * 100;
               const status =
@@ -171,25 +175,25 @@ export default function PublicView() {
                   : "text-green-500";
 
               return (
-                <Card key={bar.id}>
-                  <CardHeader>
-                    <CardTitle>{bar.name}</CardTitle>
-                    <CardDescription className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4" />
+                <Card key={bar.id} className="h-full">
+                  <CardHeader className="pb-2 sm:pb-4">
+                    <CardTitle className="text-lg sm:text-xl">{bar.name}</CardTitle>
+                    <CardDescription className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+                      <MapPin className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                       {bar.address}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-4">
+                    <div className="space-y-3 sm:space-y-4">
                       <Progress
                         value={Math.min(occupancyPercent, 100)}
                         className="h-2"
                       />
                       <div className="flex justify-between items-center">
-                        <span className={`font-medium ${statusColor}`}>
+                        <span className={`text-sm font-medium ${statusColor}`}>
                           {status}
                         </span>
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-xs sm:text-sm text-muted-foreground">
                           {bar.currentCount} / {bar.capacity} people
                         </span>
                       </div>

@@ -47,13 +47,13 @@ export default function HomePage() {
   const userBar = bars?.find(bar => bar.id === user?.barId);
 
   return (
-    <div className="min-h-screen bg-background p-8">
+    <div className="min-h-screen bg-background p-4 sm:p-8">
       <div className="max-w-3xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold">Bar Manager Dashboard</h1>
-          <div className="flex gap-4">
-            <Link href="/public">
-              <Button variant="outline">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-4xl font-bold">Bar Manager Dashboard</h1>
+          <div className="flex gap-2 sm:gap-4 w-full sm:w-auto">
+            <Link href="/public" className="flex-1 sm:flex-none">
+              <Button variant="outline" className="w-full sm:w-auto">
                 <LinkIcon className="mr-2 h-4 w-4" />
                 Public View
               </Button>
@@ -62,6 +62,7 @@ export default function HomePage() {
               variant="destructive"
               onClick={() => logoutMutation.mutate()}
               disabled={logoutMutation.isPending}
+              className="flex-1 sm:flex-none"
             >
               <LogOut className="mr-2 h-4 w-4" />
               Logout
@@ -72,20 +73,21 @@ export default function HomePage() {
         {userBar ? (
           <Card>
             <CardHeader>
-              <CardTitle>{userBar.name}</CardTitle>
-              <CardDescription>{userBar.address}</CardDescription>
+              <CardTitle className="text-xl sm:text-2xl">{userBar.name}</CardTitle>
+              <CardDescription className="text-sm sm:text-base">{userBar.address}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div>
                   <p className="text-sm font-medium mb-2">Current Count</p>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <Input
                       type="number"
                       value={count || userBar.currentCount}
                       onChange={(e) => setCount(e.target.value)}
                       min={0}
                       max={userBar.capacity}
+                      className="text-lg"
                     />
                     <Button
                       onClick={() =>
@@ -95,6 +97,7 @@ export default function HomePage() {
                         })
                       }
                       disabled={updateCountMutation.isPending}
+                      className="w-full sm:w-auto"
                     >
                       Update
                     </Button>
